@@ -248,6 +248,7 @@ class ClientsController extends Controller
         $company_name = $request->input('company_name');
 
         // Strip all other characters than numbers
+        // Strip all other characters than numbers
         $vat = preg_replace('/[^0-9]/', '', $vat);
 
         $result = $this->cvrApi($vat, 'dk');
