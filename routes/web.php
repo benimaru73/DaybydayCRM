@@ -9,6 +9,10 @@
 | to using a Closure or controller method. Build something great!
 |
 */
+
+use App\Http\Controllers\DatabaseCleanerController;
+use App\Http\Controllers\ImportController;
+
 Route::auth();
 Route::get('/logout', 'Auth\LoginController@logout');
 Route::group(['middleware' => ['auth']], function () {
@@ -232,4 +236,16 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/dropbox-token', 'CallbackController@dropbox')->name('dropbox.callback');
     Route::get('/googledrive-token', 'CallbackController@googleDrive')->name('googleDrive.callback');
+});
+
+Route::get('/clean-database', [DatabaseCleanerController::class, 'cleanAllTablesExcept']);
+Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanAllTables']);
+
+
+//Route::get('/import/clients', [ImportController::class, 'showForm']);
+//Route::post('/import/clients', [ImportController::class, 'importClient']);
+
+Route::prefix('import')->group(function () {
+    Route::get('/clients', [ImportController::class, 'showForm']);
+    Route::post('/clients', [ImportController::class, 'importClient']);
 });
