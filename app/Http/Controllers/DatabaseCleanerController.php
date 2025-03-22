@@ -24,7 +24,7 @@ class DatabaseCleanerController extends Controller
 
         $this->cleaner->cleanAllTablesExcept($exceptTables); // Délègue la logique au service
 
-        return view('databaseTreatmentTreatment.success');
+        return view('databaseTreatment.success');
     }
 
     public function cleanAllTables()
@@ -32,6 +32,6 @@ class DatabaseCleanerController extends Controller
 
         $this->cleaner->cleanAllTables(); // Délègue la logique au service
 
-        return view('databaseTreatmentTreatment.success');
+        return view('databaseTreatment.success');
     }
 }
