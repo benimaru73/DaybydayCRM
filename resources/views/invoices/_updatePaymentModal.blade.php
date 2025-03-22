@@ -56,6 +56,38 @@
             format: "{{frontendDate()}}",
             formatSubmit: 'yyyy/mm/dd',
             closeOnClear: false,
+            });
+
+$(document).ready(function() {
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+        
+        let amountDue = parseFloat("{{ $amountDueFormatted }}".replace(',', '.')); 
+        let amountPaid = parseFloat($('#amount').val());
+        
+        if (isNaN(amountDue)) {
+            alert('Error: Amount due is not defined correctly.');
+            return false;
+        }
+
+        if (amountPaid > amountDue) {
+            alert('Amount paid superior to the amount due');
+            return false;
+        }
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                location.reload(); 
+            },
+            error: function(xhr) {
+                alert('An error occurred while processing the payment.');
+            }
         });
+    });
+});
     </script>
+    
 @endpush
