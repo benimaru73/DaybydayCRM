@@ -5,7 +5,7 @@
         {{ __('Add Payment') }}</h4>
 
 </div>
-<form action="{{route('payment.add', [$invoice->external_id])}}" method="POST">
+<form id="payment-form" action="{{route('payment.add', [$invoice->external_id])}}" method="POST">
 <div class="modal-body">
     <div class="row">
         <div class="col-lg-12">
@@ -57,14 +57,14 @@
             formatSubmit: 'yyyy/mm/dd',
             closeOnClear: false,
             });
-
+/*
 $(document).ready(function() {
-    $('form').on('submit', function(e) {
+    $('#payment-form').on('submit', function(e) {
         e.preventDefault();
-        
-        let amountDue = parseFloat("{{ $amountDueFormatted }}".replace(',', '.')); 
+
+        let amountDue = parseFloat("{{ $amountDueFormatted }}".replace(',', '.'));
         let amountPaid = parseFloat($('#amount').val());
-        
+
         if (isNaN(amountDue)) {
             alert('Error: Amount due is not defined correctly.');
             return false;
@@ -74,13 +74,13 @@ $(document).ready(function() {
             alert('Amount paid superior to the amount due');
             return false;
         }
-        
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
             data: $(this).serialize(),
             success: function(response) {
-                location.reload(); 
+                location.reload();
             },
             error: function(xhr) {
                 alert('An error occurred while processing the payment.');
@@ -88,6 +88,7 @@ $(document).ready(function() {
         });
     });
 });
+*/
     </script>
     
 @endpush
