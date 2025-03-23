@@ -10,8 +10,10 @@
 |
 */
 
+use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\DatabaseCleanerController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\PaymentsController;
 
 Route::auth();
 Route::get('/logout', 'Auth\LoginController@logout');
@@ -238,6 +240,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/googledrive-token', 'CallbackController@googleDrive')->name('googleDrive.callback');
 });
 
+
+
+
+//eto mbola tsy ao am navbar
 Route::get('/clean-database', [DatabaseCleanerController::class, 'cleanAllTablesExcept']);
 Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanAllTables']);
 
@@ -248,4 +254,20 @@ Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanA
 Route::prefix('import')->group(function () {
     Route::get('/clients', [ImportController::class, 'showForm']);
     Route::post('/clients', [ImportController::class, 'importClient']);
+});
+
+
+//eto api
+Route::prefix('api')->group(function () {
+    Route::get('/clients/count', [ClientsController::class, 'countAllClientsJson']);
+    Route::get('/clients/all', [ClientsController::class, 'listAllClientsJson']);
+    Route::get('/clients/payments', [PaymentsController::class, 'getTotalPaymentsByClient']);
+    Route::get('/clients/payments/{clientId}', [PaymentsController::class, 'getPaymentsByClient']);
+    Route::get('/payments', [PaymentsController::class, 'getTotalPaymentsJson']);
+    Route::get('/payments/byinvoice', [PaymentsController::class, 'getAllPaymentsByInvocieJson']);
+    Route::get('/payments/{invoiceId}', [PaymentsController::class, 'getByInvoiceJson']);
+    Route::get('/payments/id/{id}', [PaymentsController::class, 'getByIdJson']);
+    Route::put('/payments/{id}', [PaymentController::class, 'updatePayment']);
+    Route::delete('/payments/{id}', [PaymentController::class, 'deletePayment']);
+
 });

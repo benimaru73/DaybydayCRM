@@ -433,4 +433,18 @@ class ClientsController extends Controller
     {
         return Industry::pluck('name', 'id');
     }
+
+    public function listAllClientsJson() {
+        $clients = Client::all();
+        return response()->json([
+            'clients' => $clients
+        ]);
+    }
+
+    public function countAllClientsJson() {
+        return response()->json([
+            'count' => Client::count()
+        ]);
+    }
+
 }
