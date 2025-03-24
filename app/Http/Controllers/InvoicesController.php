@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reduction;
+use Illuminate\Support\Facades\DB;
 use View;
 use App\Billy;
 use Datatables;
@@ -54,6 +56,7 @@ class InvoicesController extends Controller
      */
     public function show(Invoice $invoice)
     {
+
         if (!auth()->user()->can('invoice-see')) {
             session()->flash('flash_message_warning', __('You do not have permission to view this invoice'));
             return redirect()->route('clients.index');
@@ -62,6 +65,9 @@ class InvoicesController extends Controller
         $apiConnected = false;
         $invoiceContacts = [];
         $primaryContact = null;
+
+        $reduction = Reduction::orderBy('id', 'desc')->first();
+
 
         $api = Integration::initBillingIntegration();
 
@@ -81,7 +87,8 @@ class InvoicesController extends Controller
         $subPrice = $invoiceCalculator->getSubTotal();
         $vatPrice = $invoiceCalculator->getVatTotal();
         $amountDue = $invoiceCalculator->getAmountDue();
-        
+        $taux = $reduction->taux ?? 0;
+
         return view('invoices.show')
             ->withInvoice($invoice)
             ->withApiconnected($apiConnected)
@@ -94,7 +101,8 @@ class InvoicesController extends Controller
             ->withPaymentSources(PaymentSource::values())
             ->withAmountDue($amountDue)
             ->withSource($invoice->source)
-            ->withCompanyName(Setting::first()->company);
+            ->withCompanyName(Setting::first()->company)
+            ->withtaux($taux);
     }
 
 
@@ -127,6 +135,7 @@ class InvoicesController extends Controller
         $invoice->status  =  InvoiceStatus::unpaid()->getStatus();
         $invoice->due_at  =  $result["due_at"];
         $invoice->invoice_number = app(InvoiceNumberService::class)->setInvoiceNumber($result["invoice_number"]);
+        $invoice->reduction = $request->send_invoice;
         $invoice->save();
 
         return redirect()->back();
@@ -232,5 +241,14 @@ class InvoicesController extends Controller
         $invoices = Invoice::pastDueAt()->get();
         
         return view('invoices.overdue')->withInvoices($invoices);
+    }
+
+    public function countInvoiceByStatus()
+    {
+        $counts = Invoice::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->get();
+
+        return response()->json($counts);
     }
 }

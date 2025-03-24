@@ -37,11 +37,11 @@ class InvoiceCalculator
     {
         $price = 0;
         $invoiceLines = $this->invoice->invoiceLines;
-
         foreach ($invoiceLines as $invoiceLine) {
-            $price += $invoiceLine->quantity * $invoiceLine->price;
-        }
 
+            $price += $invoiceLine->quantity * $invoiceLine->price ;
+        }
+        $price = $price*(1 - $this->invoice->reduction);
         return new Money($price);
     }
 

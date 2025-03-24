@@ -35,7 +35,8 @@ class Invoice extends Model
         'source_type',
         'external_id',
         'offer_id',
-    ];
+        'reduction',
+        ];
 
     protected $dates = [
         'due_at',

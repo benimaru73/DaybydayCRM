@@ -164,7 +164,15 @@
                                 </p>
                             </div>
                         @endif
+                        <div class="col-md-6">
+                            <p class="invoice-info-title">@lang('Based on')</p>
+                            <p class="invoice-info-subtext">
+                                <button data-offer-external_id={{$invoice->offer->external_id}} class="btn btn-link" style="padding: 0px;" id="view-original-offer">@lang('Offer')</button>
+                            </p>
+                        </div>
+
                         <hr>
+
                         <div class="col-md-6">
                             @if(Entrust::can('invoice-pay'))
                                         <button type="button" id="update-payment" class="btn btn-md btn-brand btn-full-width closebtn"
@@ -248,6 +256,13 @@
 
                     <textarea name="message" id="" rows="13" class="form-control">@lang("Dear :name\n\nThank you, for being a customer at :company\n\nHere is you Invoice on :price\n\nClick the link below to download the invoice\n\n[link-to-pdf]\n\nRegards\n---\n:company", ["name" => $invoice->client->primaryContact->name, "company" => $companyName, "price" => $finalPrice])</textarea>
                 </div>
+
+                <div class="col-md-6">
+                    <input type="hidden" name="send_invoice" id="send_invoice" value="0">
+                    <input type="checkbox" name="send_invoice" id="send_invoice" value="{{ $taux }}">
+                    <label for="send_invoice">Taux à {{ $taux * 100 }} %</label>
+                </div>
+
                 <input type="submit" value="{{__('Send invoice')}}" class="btn btn-md btn-brand btn-full-width closebtn" id="close-invoice">
             {!! Form::close() !!}
             </div>

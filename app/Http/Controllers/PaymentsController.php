@@ -15,6 +15,7 @@ use App\Services\Invoice\InvoiceCalculator;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 
 class PaymentsController extends Controller
@@ -150,11 +151,15 @@ class PaymentsController extends Controller
     public function getTotalPaymentsJson() {
         $sumPaid = Payment::sum('amount');
 
-        $sumPrice = InvoiceLine::whereNotNull('offer_id')->sum('price');
-
+        $invoice = Invoice::all();
+        $sumDue = 0;
+        foreach ($invoice as $invoice) {
+            $invoiceCalculator = new InvoiceCalculator($invoice);
+            $sumDue += $invoiceCalculator->getAmountDue()->getAmount();
+        }
         return response()->json([
             'sumPaid' => $sumPaid,
-            'sumDue' => $sumPrice - $sumPaid
+            'sumDue' => $sumDue
         ]);
     }
 
@@ -201,56 +206,78 @@ class PaymentsController extends Controller
         return response()->json($payments);
     }
 
-    public function updatePayment(Request $request, $id)
+    public function updatePayment(Request $request)
     {
-        $payment = Payment::where('id', $id)->firstOrFail();
+        \DB::beginTransaction();
 
-        if (!$payment->invoice->isSent()) {
-            return response()->json([
-                'message' => "Can't update payment on Invoice"
-            ], 400);
-        }
+        try {
+            $payment = Payment::where('external_id', $request->external_id)->firstOrFail();
 
-        $payment->update([
-            'amount' => $request->amount,
-            'description' => $request->description,
-            'payment_source' => $request->payment_source,
-            'payment_date' => Carbon::parse($request->payment_date),
-            'integration_payment_id' => $request->integration_payment_id,
-            'integration_type' => $request->integration_type,
-        ]);
-
-        // Mise à jour de l’intégration si nécessaire
-        $api = Integration::initBillingIntegration();
-        if ($api && $payment->invoice->integration_invoice_id) {
-            $result = $api->updatePayment($payment);
-            $payment->integration_payment_id = $result["Guid"];
-            $payment->integration_type = get_class($api);
+            // Mise à jour du montant
+            $payment->amount = $request->amount;
+            $payment->updated_at = Carbon::now();
             $payment->save();
+
+            $sommeFacture = 0;
+            foreach ($payment->invoice->invoiceLines as $line) {
+                $sommeFacture += $line->price;
+            }
+
+            if ($payment->invoice->payments->sum('amount') > $sommeFacture) {
+                \DB::rollBack();
+                return response()->json([
+                    "error" => "Le total des paiements dépasse le montant de la facture",
+                ], 400);
+            }
+
+            \DB::commit();
+            return response()->json([
+                "success" => "Le paiement a été mis à jour avec succès"
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "error" => "Une erreur est survenue lors de la mise à jour du paiement : " . $e->getMessage()
+            ], 500);
         }
 
-        app(GenerateInvoiceStatus::class, ['invoice' => $payment->invoice])->createStatus();
-
-        return response()->json([
-            'message' => 'Payment successfully updated',
-            'payment' => $payment
-        ], 200);
     }
 
-    public function deletePayment($id)
+    public function deletePayment(Request $request)
     {
-        $payment = Payment::where('id', $id)->firstOrFail();
-        $payment->delete();
+        \DB::beginTransaction();
 
-        $api = Integration::initBillingIntegration();
-        if ($api && $payment->integration_payment_id) {
-            $api->deletePayment($payment->integration_payment_id);
+        try {
+            $payment = Payment::where('external_id', $request->external_id)->firstOrFail();
+
+            $payment->deleted_at = Carbon::now();
+            $payment->save();
+
+            $sommeFacture = 0;
+            foreach ($payment->invoice->invoiceLines as $line) {
+                $sommeFacture += $line->price;
+            }
+
+            if ($payment->invoice->payments->sum('amount') > $sommeFacture) {
+                \DB::rollBack();
+                return response()->json([
+                    "error" => "Le total des paiements dépasse le montant de la facture",
+                ], 400);
+            }
+
+            \DB::commit();
+            return response()->json([
+                "success" => "Le paiement a été mis à jour avec succès"
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                "error" => "Une erreur est survenue lors de la mise à jour du paiement : " . $e->getMessage()
+            ], 500);
         }
 
-        app(GenerateInvoiceStatus::class, ['invoice' => $payment->invoice])->createStatus();
-
-        return response()->json([
-            'message' => 'Payment successfully deleted'
-        ], 200);
     }
+
 }
