@@ -13,6 +13,7 @@
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\DatabaseCleanerController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PaymentsController;
 
 Route::auth();
@@ -263,11 +264,15 @@ Route::prefix('api')->group(function () {
     Route::get('/clients/all', [ClientsController::class, 'listAllClientsJson']);
     Route::get('/clients/payments', [PaymentsController::class, 'getTotalPaymentsByClient']);
     Route::get('/clients/payments/{clientId}', [PaymentsController::class, 'getPaymentsByClient']);
+
     Route::get('/payments', [PaymentsController::class, 'getTotalPaymentsJson']);
     Route::get('/payments/byinvoice', [PaymentsController::class, 'getAllPaymentsByInvocieJson']);
     Route::get('/payments/{invoiceId}', [PaymentsController::class, 'getByInvoiceJson']);
     Route::get('/payments/id/{id}', [PaymentsController::class, 'getByIdJson']);
-    Route::put('/payments/{id}', [PaymentController::class, 'updatePayment']);
-    Route::delete('/payments/{id}', [PaymentController::class, 'deletePayment']);
+
+    Route::put('/payments/update', [PaymentsController::class, 'updatePayment']);
+    Route::put('/payments/delete', [PaymentsController::class, 'deletePayment']);
+
+    Route::get('/invoices/count-by-status', [InvoicesController::class, 'countInvoiceByStatus']);
 
 });

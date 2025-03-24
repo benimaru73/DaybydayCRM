@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use View;
 use App\Billy;
 use Datatables;
@@ -232,5 +233,14 @@ class InvoicesController extends Controller
         $invoices = Invoice::pastDueAt()->get();
         
         return view('invoices.overdue')->withInvoices($invoices);
+    }
+
+    public function countInvoiceByStatus()
+    {
+        $counts = Invoice::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->get();
+
+        return response()->json($counts);
     }
 }

@@ -20,6 +20,7 @@ class InvoiceLine extends Model
         'invoice_id',
         'product_id',
         'offer_id',
+        'reduction',
     ];
 
     /**
