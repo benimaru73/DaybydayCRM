@@ -151,11 +151,15 @@ class PaymentsController extends Controller
     public function getTotalPaymentsJson() {
         $sumPaid = Payment::sum('amount');
 
-        $sumPrice = InvoiceLine::whereNotNull('offer_id')->sum('price');
-
+        $invoice = Invoice::all();
+        $sumDue = 0;
+        foreach ($invoice as $invoice) {
+            $invoiceCalculator = new InvoiceCalculator($invoice);
+            $sumDue += $invoiceCalculator->getAmountDue()->getAmount();
+        }
         return response()->json([
             'sumPaid' => $sumPaid,
-            'sumDue' => $sumPrice - $sumPaid
+            'sumDue' => $sumDue
         ]);
     }
 

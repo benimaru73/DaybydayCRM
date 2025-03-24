@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddReductionToInvoiceLines extends Migration
+class AddReductionToInvoices extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class AddReductionToInvoiceLines extends Migration
      */
     public function up()
     {
-        Schema::table('invoice_lines', function (Blueprint $table) {
-            $table->decimal('reduction', 10, 2)->default(0);
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->decimal('reduction', 10, 2)->default(0); // Exemple : max 10 chiffres, 2 décimales
+            //
         });
     }
 
@@ -25,8 +26,7 @@ class AddReductionToInvoiceLines extends Migration
      */
     public function down()
     {
-        Schema::table('invoice_lines', function (Blueprint $table) {
-            $table->dropColumn('reduction');
+        Schema::table('invoices', function (Blueprint $table) {
             //
         });
     }
