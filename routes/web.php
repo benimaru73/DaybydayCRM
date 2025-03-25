@@ -247,7 +247,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 //eto mbola tsy ao am navbar
 Route::get('/clean-database', [DatabaseCleanerController::class, 'cleanAllTablesExcept']);
-Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanAllTables']);
+Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanAllTables'])->name('clean-database-migrate');
 
 
 //Route::get('/import/clients', [ImportController::class, 'showForm']);
@@ -256,5 +256,8 @@ Route::get('/clean-database-migrate', [DatabaseCleanerController::class, 'cleanA
 Route::prefix('import')->group(function () {
     Route::get('/clients', [ImportController::class, 'showForm']);
     Route::post('/clients', [ImportController::class, 'importClient']);
+
+    Route::get('/eval', [ImportController::class, 'evalForm']);
+    Route::post('/eval', [ImportController::class, 'import'])->name('import.form');
 });
 

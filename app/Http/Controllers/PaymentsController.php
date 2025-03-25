@@ -229,6 +229,15 @@ class PaymentsController extends Controller
                     "error" => "Le total des paiements dépasse le montant de la facture",
                 ], 400);
             }
+            $api = Integration::initBillingIntegration();
+            $invoice = $payment->invoice;
+            if ($api && $invoice->integration_invoice_id) {
+                $result = $api->createPayment($payment);
+                $payment->integration_payment_id = $result["Guid"];
+                $payment->integration_type = get_class($api);
+                $payment->save();
+            }
+            app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
 
             \DB::commit();
             return response()->json([

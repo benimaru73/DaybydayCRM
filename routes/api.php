@@ -41,6 +41,7 @@ Route::put('/payments/update', [PaymentsController::class, 'updatePayment']);
 Route::put('/payments/delete', [PaymentsController::class, 'deletePayment']);
 
 Route::get('/invoices/count-by-status', [InvoicesController::class, 'countInvoiceByStatus']);
+Route::get('/invoices/all', [InvoicesController::class, 'getAllInvoices']);
 
 Route::post('/reductions/create', [ReductionController::class, 'store']);
 Route::put('/reductions/update', [ReductionController::class, 'update']);

@@ -172,6 +172,22 @@
                                 class="bullet-point"><span></span></i> {{ __('Integrations') }}</a>
                 </div>
             @endif
+
+            @if(Entrust::hasRole('administrator') || Entrust::hasRole('owner'))
+                <a href="#database-settings" class=" list-group-item" data-toggle="collapse" data-parent="#MainMenu">
+                    <i class="fa fa-database sidebar-icon"></i>
+                    <span id="menu-txt">{{ __('Database') }}</span>
+                    <i class="icon ion-md-arrow-dropup arrow-side sidebar-arrow"></i>
+                </a>
+                <div class="collapse" id="database-settings">
+                    <a href="{{ route('clean-database-migrate')}}" class="list-group-item childlist">
+                        <i class="bullet-point"><span></span></i> {{ __('Clean Database') }}
+                    </a>
+                    <a href="{{ route('import.form')}}" class="list-group-item childlist">
+                        <i class="bullet-point"><span></span></i> {{ __('Import') }}
+                    </a>
+                </div>
+            @endif
         </div>
     </nav>
 

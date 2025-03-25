@@ -251,4 +251,30 @@ class InvoicesController extends Controller
 
         return response()->json($counts);
     }
+
+    public function getAllInvoices()
+    {
+        // Récupérer toutes les factures avec la relation client
+        $invoices = Invoice::with('client')->get();
+
+        $invoiceData = $invoices->map(function($invoice) {
+            // Calculer le montant dû à partir du InvoiceCalculator
+            $invoiceCalculator = new InvoiceCalculator($invoice);
+            $sumDue = $invoiceCalculator->getAmountDue()->getAmount();
+
+            // Retourner les données nécessaires
+            return [
+                'id' => $invoice->id,
+                'company_name' => $invoice->client->company_name,  // Supposons que la relation client est définie
+                'created_at' => $invoice->created_at,
+                'due' => $invoice->due_at,
+                'amount_due' => $sumDue,
+                'reduction' => $invoice->reduction,
+                'status' => $invoice->status,
+            ];
+        });
+
+        return response()->json($invoiceData);
+    }
+
 }

@@ -15,7 +15,7 @@ class CreateReductionsTable extends Migration
     {
         Schema::create('reductions', function (Blueprint $table) {
             $table->id();
-            $table->decimal('taux', 5, 2);
+            $table->decimal('taux', 9, 4);
             $table->timestamps();
         });
     }

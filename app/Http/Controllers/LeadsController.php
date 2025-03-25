@@ -37,7 +37,7 @@ class LeadsController extends Controller
     public function index()
     {
         return view('leads.index')
-        ->withStatuses(Status::typeOfLead()->get());;
+            ->withStatuses(Status::typeOfLead()->get());;
     }
 
     /**
@@ -94,7 +94,7 @@ class LeadsController extends Controller
                 'client_id' => $client->id
             ]
         );
-        
+
         event(new \App\Events\LeadAction($lead, self::CREATED));
         session()->flash('flash_message', __('Lead successfully added'));
         return redirect()->route('leads.show', $lead->external_id);
@@ -113,9 +113,9 @@ class LeadsController extends Controller
                 ]);
             }
         }
-        
+
         $lead->delete();
-        
+
         session()->flash('flash_message', __('Lead deleted'));
         return redirect()->back();
     }
@@ -133,7 +133,7 @@ class LeadsController extends Controller
                 ]);
             }
         }
-        
+
         $lead->delete();
 
         return response('OK');
@@ -179,11 +179,11 @@ class LeadsController extends Controller
     public function show($external_id)
     {
         $lead = $this->findByExternalId($external_id);
-        
+
         $offers = $lead->offers->map(function($offer) {
             return new InvoiceCalculator($offer);
         });
-        
+
         return view('leads.show')
             ->withLead($lead)
             ->withOffers($offers)
